@@ -1,18 +1,10 @@
-from datetime import datetime
-import os
-import zipfile
+import os, zipfile, random, string
 import fnmatch
-import random
-import string
-
-import shapefile
 import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
+from datetime import datetime
 
 
-__all__ = ['dayends_from_timestamp', 'in_area', 'seq2graph',
-           'greate_circle_distance', 'shape2points',
+__all__ = ['dayends_from_timestamp', 'in_area', 'greate_circle_distance',
            'randstr', 'zipdir', 'zippylib', 'normalized']
 
 try:
@@ -44,74 +36,6 @@ def in_area(p, lb, rt):
     return False
 
 
-def seq2graph(seq, directed=True):
-    """Create a directed graph from an odered
-    sequence of items.
-
-    An alternative to nx.Graph.add_path().
-    """
-    seq = [i for i in seq]
-    N = len(seq)
-    if directed:
-        G = nx.DiGraph()
-    else:
-        G = nx.Graph()
-    G.add_nodes_from(seq)
-    edges = [i for i in zip(seq[0:N-1], seq[1:N]) if i[0] != i[1]]
-    G.add_edges_from(edges)
-    return G
-
-
-def draw_network(G, pos, ax):
-    """Draw network with curved edges.
-
-    Examples
-    --------
-
-    plt.figure(figsize=(10, 10))
-    ax=plt.gca()
-    pos=nx.spring_layout(G)
-    draw_network(G, pos, ax)
-    ax.autoscale()
-    plt.axis('equal')
-    plt.axis('off')
-    plt.title('Curved network')
-
-    """
-    # ax=plt.gca()
-    # pos=nx.spring_layout(motif)
-    # draw_network(motif, pos, ax)
-
-
-    for n in G:
-        c = Circle(pos[n], radius=0.05, alpha=0.5)
-        ax.add_patch(c)
-        G.node[n]['patch'] = c
-    seen={}
-    for (u,v,d) in G.edges(data=True):
-        n1 = G.node[u]['patch']
-        n2 = G.node[v]['patch']
-        rad = 0.1
-        if (u,v) in seen:
-            rad = seen.get((u,v))
-            rad = (rad + np.sign(rad) * 0.1) * -1
-        alpha = 0.5; color = 'k'
-        e = FancyArrowPatch(n1.center, n2.center,
-                            patchA=n1, patchB=n2,
-                            arrowstyle='-|>',
-                            connectionstyle='arc3,rad=%s' % rad,
-                            mutation_scale=10.0,
-                            lw=2, alpha=alpha, color=color)
-        seen[(u, v)] = rad
-        ax.add_patch(e)
-
-    # ax.autoscale()
-    # plt.axis('equal')
-    # plt.axis('off')
-
-    return e
-
-
 def greate_circle_distance(lon0, lat0, lon1, lat1):
     """Return the distance (in km) between two points in
     geographical coordinates.
@@ -139,17 +63,6 @@ def radius_of_gyration(coordinates):
     clat = np.average([coord[1] for coord in coordinates])
 
     return np.average([greate_circle_distance(clon, clat, coord[0], coord[1]) for coord in coordinates])
-
-
-def shape2points(shpfile):
-    """Extract point coordinats from a ERIS point shapefile.
-    """
-    sf = shapefile.Reader(shpfile)
-    return [shape.points[0] for shape in sf.shapes()]
-
-
-def randstr(len):
-    return ''.join(random.choice(string.lowercase) for i in range(len))
 
 
 def zipdir(path, zipf=None, fnpat='*'):
@@ -193,6 +106,10 @@ def zippylib(libpath, zipf=None):
         return zipf
     finally:
         ziph.close()
+
+
+def randstr(len):
+    return ''.join(random.choice(string.lowercase) for i in range(len))
 
 
 def normalized(a, axis=None, order=2):
