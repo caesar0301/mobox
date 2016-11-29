@@ -23,4 +23,3 @@ from mobnet import *
 from motif import *
 from trajectory import *
 from graph import *
-from shapefile import *

@@ -4,9 +4,8 @@ import numpy as np
 from typedecorator import params, returns
 
 from roadnet import RoadNetwork
-from bsmap import BaseStationMap
-from settings import HZ_LB, HZ_RT
-from utils import greate_circle_distance, seq2graph, drange, in_area
+from utils import greate_circle_distance
+from graph import seq2graph
 
 
 __all__ = ['Trajectory']
